@@ -69,6 +69,11 @@ function it_exchange_one_click_export_addon_page() {
 					__( 'Variant Inventory', 'LION' ),
 					__( 'Variant Pricing', 'LION' ),
 					__( 'Variant Images', 'LION' ),
+					
+					/* Customer Pricing */
+					__( 'Customer Pricing Options', 'LION' ),
+					__( 'Customer Name Your Own Prices Options', 'LION' ),
+					
 										
 				);
 				fwrite( $f, implode( ',', $headings ) . "\n" );
@@ -310,6 +315,21 @@ function it_exchange_one_click_export_addon_page() {
 						$line[] = '';
 					}
 					
+					/* Customer Pricing */					
+					if ( !empty( $meta['_it-exchange-customer-pricing-enabled'][0] ) && 'no' != $meta['_it-exchange-customer-pricing-enabled'][0] ) {
+						$options = maybe_unserialize( $meta['_it-exchange-customer-pricing-options'][0] );
+						$tmp_options = array();
+						foreach( $options as $value ) {
+							$tmp_options[] = '[Price:' . $value['price'] . ';Label:' . $value['label'] . ';Default:' . $value['default'] . ']';
+						}
+						$tmp = implode( "\n", $tmp_options );
+						$line[] = it_exchange_one_click_export_escape_csv_value( $tmp );
+
+						if ( !empty( $meta['_it-exchange-customer-pricing-nyop-enabled'][0] ) && 'no' != $meta['_it-exchange-customer-pricing-nyop-enabled'][0] ) {
+							$line[] = it_exchange_one_click_export_escape_csv_value( sprintf( 'Min: %s; Max: %s', $meta['_it-exchange-customer-pricing-nyop-min'][0], $meta['_it-exchange-customer-pricing-nyop-max'][0] ) );
+						}
+					}
+
 					fwrite( $f, implode( ',', $line ) . "\n"  );
 					echo join( ',', $line ) . "<br />";
 				}
