@@ -74,6 +74,14 @@ function it_exchange_one_click_export_addon_page() {
 					__( 'Customer Pricing Options', 'LION' ),
 					__( 'Customer Name Your Own Prices Options', 'LION' ),
 					
+					/* Canadian Tax Settings */
+					__( 'Canadian Tax Exempt?', 'LION' ),
+					/* EU VAT Settings */
+					__( 'EU VAT Settings', 'LION' ),
+					__( 'EU VATMOSS Settings', 'LION' ),
+					/* U.S. Tax Settings */
+					__( 'U.S. TaxCloud Tax Code', 'LION' ),
+					
 										
 				);
 				fwrite( $f, implode( ',', $headings ) . "\n" );
@@ -315,7 +323,7 @@ function it_exchange_one_click_export_addon_page() {
 						$line[] = '';
 					}
 					
-					/* Customer Pricing */					
+					/* Customer Pricing */
 					if ( !empty( $meta['_it-exchange-customer-pricing-enabled'][0] ) && 'no' != $meta['_it-exchange-customer-pricing-enabled'][0] ) {
 						$options = maybe_unserialize( $meta['_it-exchange-customer-pricing-options'][0] );
 						$tmp_options = array();
@@ -330,6 +338,55 @@ function it_exchange_one_click_export_addon_page() {
 						}
 					}
 
+					/* Canadian Tax Settings */
+					if ( !empty( $meta['_it-exchange-add-on-easy-us-sales-taxes-canadian-tax-exempt-status'][0] ) ) {
+						$line[] = 'Exempt';
+					} else {
+						$line[] = '';
+					}
+					/* EU VAT Settings */
+					if ( empty( $meta['_it-exchange-easy-eu-value-added-taxes-exempt'][0] ) ) {
+						$settings = it_exchange_get_option( 'addon_easy_eu_value_added_taxes' );
+						$tax_type = !isset( $meta['_it-exchange-easy-eu-value-added-taxes-type'][0] ) ? 'default' : $meta['_it-exchange-easy-eu-value-added-taxes-type'][0];
+						if ( $tax_type !== 0 && 'default' === $tax_type ) {
+							$line[] = 'Default';
+						} else {
+							$line[] = sprintf( __( '%s (%s%%)', 'LION' ), $settings['tax-rates'][$tax_type]['label'], $settings['tax-rates'][$tax_type]['rate'] );
+						}
+					} else {
+						$line[] = 'Exempt';
+					}
+					if ( !empty( $meta['_it-exchange-easy-eu-value-added-taxes-vat-moss'][0] ) && 'on' === $meta['_it-exchange-easy-eu-value-added-taxes-vat-moss'][0] ) {
+						$settings = it_exchange_get_option( 'addon_easy_eu_value_added_taxes' );
+						$vat_moss_tax_types = empty( $meta['_it-exchange-easy-eu-value-added-taxes-vat-moss-tax-types'][0] ) ? array() : maybe_unserialize( $meta['_it-exchange-easy-eu-value-added-taxes-vat-moss-tax-types'][0] );
+
+						foreach( $settings['vat-moss-tax-rates'] as $memberstate_abbrev => $tax_rates ) {
+							foreach( $tax_rates as $tax_rate ) {
+								if ( 'checked' === $tax_rate['default'] ) {
+									$default_tax_rate = $tax_rate;
+									break;
+								}
+							}
+							if ( empty( $vat_moss_tax_types[$memberstate_abbrev] ) ) {
+								$vat_moss_tax_types[$memberstate_abbrev] = 'default';
+							}
+							if ( 'default' === $vat_moss_tax_types[$memberstate_abbrev] ) {
+								$line[] = sprintf( __( 'Default (%s - %s%%)', 'LION' ), $default_tax_rate['label'], $default_tax_rate['rate'] );;
+							} else {
+								$line[] = sprintf( __( '%s (%s%%)', 'LION' ), $tax_rates[$vat_moss_tax_types[$memberstate_abbrev]]['label'], $tax_rates[$vat_moss_tax_types[$memberstate_abbrev]]['rate'] );
+							}
+						}
+					} else {
+						$line[] = 'Disabled';
+					}
+					/* U.S. Tax Settings */
+					if ( !empty( $meta['_it-exchange-add-on-easy-us-sales-taxes-us-tic'][0] ) ) {
+						$line[] = $meta['_it-exchange-add-on-easy-us-sales-taxes-us-tic'][0];
+					} else {
+						$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
+						$line[] = $settings['us-tic'];
+					}
+					
 					fwrite( $f, implode( ',', $line ) . "\n"  );
 					echo join( ',', $line ) . "<br />";
 				}
