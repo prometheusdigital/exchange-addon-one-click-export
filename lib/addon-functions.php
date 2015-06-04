@@ -1,6 +1,22 @@
 <?php
 	
 function it_exchange_one_click_export_addon_page() {
+    $uploads_dirs = wp_upload_dir();
+    $baseurl = $uploads_dirs['baseurl'];
+    $basedir = $uploads_dirs['basedir'];
+    $destination = $basedir . '/exchange_export';
+	$path = $baseurl . '/exchange_export';
+	if ( is_writable( $basedir ) ) {
+		if ( !file_exists( $destination ) ) {
+			if ( false === mkdir( $destination ) ) {
+				echo "NOT MAKEABLE DUFFUS!";
+			}
+		} else if ( !is_writeable( $destination ) ) {
+			echo "NOT WRITEABLE DUFFUS!";
+		}
+	} else {
+		echo "NOT WRITEABLE FOOL!";
+	}
 ?>
 <div class="wrap help-wrap">
 	<?php ITUtility::screen_icon( 'it-exchange' );  ?>
@@ -13,7 +29,6 @@ function it_exchange_one_click_export_addon_page() {
 			<input type="hidden" value="0" name="n" />
 			<?php submit_button( __( 'Generate Export Files', 'LION' ), 'button', 'one-click-export' ); ?>
 		</form>
-		<hr />
 		<?php
 		if ( !empty( $_REQUEST['one-click-export'] ) ) {
 			$variants_plugin_enabled = false;
@@ -30,9 +45,9 @@ function it_exchange_one_click_export_addon_page() {
 			$products = get_posts( $args );
 			if ( !empty( $products ) ) {
 				if ( 0 === $page ) {
-					$f = fopen( 'ithemes-exchanges-products.csv', 'w' );
+					$f = fopen( $destination . '/ithemes-exchanges-products.csv', 'w' );
 				} else {
-					$f = fopen( 'ithemes-exchanges-products.csv', 'a' );
+					$f = fopen( $destination . '/ithemes-exchanges-products.csv', 'a' );
 				}
 				$headings = array(
 					//Core
@@ -85,7 +100,6 @@ function it_exchange_one_click_export_addon_page() {
 										
 				);
 				fwrite( $f, implode( ',', $headings ) . "\n" );
-				echo '<h3>' . join( ',', $headings ) . "</h3><br />";
 				foreach( $products as $product ) {
 					$meta = get_post_meta( $product->ID );
 					//print_r( $meta );
@@ -388,7 +402,6 @@ function it_exchange_one_click_export_addon_page() {
 					}
 					
 					fwrite( $f, implode( ',', $line ) . "\n"  );
-					echo join( ',', $line ) . "<br />";
 				}
 				fclose( $f );
 			}
@@ -396,7 +409,6 @@ function it_exchange_one_click_export_addon_page() {
             if ( empty( $products ) || $limit > count( $products ) ) {
 	            
                 echo '<p>' . __( 'All Done!', 'issuem-leaky-paywall' ) . '</p>';
-                return;	
                             
 	        } else {
 			    
@@ -413,6 +425,26 @@ function it_exchange_one_click_export_addon_page() {
 			}
 		}		
 		?>
+	</div>
+	
+	<hr />
+	
+	<div class="one-click-export-section-wrap clearfix">
+		<h3><?Php _e( 'Current Export Files', 'LION' ); ?></h3>
+		<ul>
+		<?php
+		$gmt_offset = get_option( 'gmt_offset' );
+		$date_format = get_option ( 'date_format' );
+		foreach( scandir( $destination ) as $file ) {
+			if ( '.' === $file || '..' === $file ) {
+				continue;
+			}
+			$mtime = filemtime( $destination . '/' . $file ) + ( $gmt_offset * 3600 );
+			$mtime = date_i18n( $date_format . ' h:i:s A', $mtime );
+			echo '<li><a href="' . $path . '/' . $file . '">' . $file . '</a> (' . $mtime . ')</li>';
+		}
+		?>
+		</ul>
 	</div>
 </div>
 <?php
