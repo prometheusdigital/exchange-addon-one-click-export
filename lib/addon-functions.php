@@ -52,6 +52,7 @@ function it_exchange_one_click_export_addon_page() {
 				$headings = array(
 					//Core
 					__( 'Title', 'LION' ),
+					__( 'ID', 'LION' ),
 					__( 'Base Price', 'LION' ),
 					__( 'Description', 'LION' ),
 					__( 'Extended Description', 'LION' ),
@@ -102,9 +103,10 @@ function it_exchange_one_click_export_addon_page() {
 				fwrite( $f, implode( ',', $headings ) . "\n" );
 				foreach( $products as $product ) {
 					$meta = get_post_meta( $product->ID );
-					//print_r( $meta );
+
 					$line = array();
 					$line[] = it_exchange_one_click_export_escape_csv_value( $product->post_title ); //Product Title
+					$line[] = it_exchange_one_click_export_escape_csv_value( $product->ID ); //Product ID
 					
 					if ( !empty( $meta['_it-exchange-base-price'][0] ) ) {
 						$line[] = it_exchange_one_click_export_escape_csv_value( $meta['_it-exchange-base-price'][0] );
