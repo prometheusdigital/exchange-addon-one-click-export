@@ -33,13 +33,13 @@ function it_exchange_one_click_export_addon_page() {
 		</form>
 		<?php
 		if ( !empty( $_REQUEST['one-click-export'] ) ) {
-			$membership_plugin_enabled         = is_plugin_active( 'exchange-addon-membership' );
-			$recurring_payments_plugin_enabled = is_plugin_active( 'exchange-addon-recurring-payments' );
-			$variants_plugin_enabled           = is_plugin_active( 'exchange-addon-variants' );
-			$customer_pricing_plugin_enabled   = is_plugin_active( 'exchange-addon-customer-pricing' );
-			$can_tax_plugin_enabled            = is_plugin_active( 'exchange-addon-easy-canadian-sales-taxes' );
-			$eu_tax_plugin_enabled             = is_plugin_active( 'exchange-addon-easy-eu-value-added-taxes' );
-			$us_tax_plugin_enabled             = is_plugin_active( 'exchange-addon-easy-us-sales-taxes' );
+			$membership_plugin_enabled         = is_plugin_active( 'exchange-addon-membership/exchange-addon-membership.php' );
+			$recurring_payments_plugin_enabled = is_plugin_active( 'exchange-addon-recurring-payments/exchange-addon-recurring-payments.php' );
+			$variants_plugin_enabled           = is_plugin_active( 'exchange-addon-variants/exchange-addon-variants.php' );
+			$customer_pricing_plugin_enabled   = is_plugin_active( 'exchange-addon-customer-pricing/exchange-addon-customer-pricing.php' );
+			$can_tax_plugin_enabled            = is_plugin_active( 'exchange-addon-easy-canadian-sales-taxes/exchange-addon-easy-canadian-sales-taxes.php' );
+			$eu_tax_plugin_enabled             = is_plugin_active( 'exchange-addon-easy-eu-value-added-taxes/exchange-addon-easy-eu-value-added-taxes.php' );
+			$us_tax_plugin_enabled             = is_plugin_active( 'exchange-addon-easy-us-sales-taxes/exchange-addon-easy-us-sales-taxes.php' );
 			$limit = 20;
 			
 			echo '<p>';
@@ -464,6 +464,7 @@ function it_exchange_one_click_export_addon_page() {
 				    setTimeout( "nextpage()", 250 );
 				    //-->
 				    </script><?php
+					return;
 				    
 				}
 			} else {
@@ -491,7 +492,6 @@ function it_exchange_one_click_export_addon_page() {
 						$f = fopen( $destination . '/ithemes-exchanges-transactions.csv', 'a' );
 					}
 					$headings = array(
-						//Core
 						__( 'Title', 'LION' ),
 						__( 'ID', 'LION' ),
 						__( 'Method', 'LION' ),
@@ -599,6 +599,7 @@ function it_exchange_one_click_export_addon_page() {
 				    setTimeout( "nextpage()", 250 );
 				    //-->
 				    </script><?php
+					return;
 				    
 				}
 			} else {
@@ -611,7 +612,88 @@ function it_exchange_one_click_export_addon_page() {
 				_e( 'Exporting membership data...', 'LION' );
 				if ( !empty( $_REQUEST['membership-export'] ) ) {
 					
-					$membership_data = false;
+					$page = !empty( $_REQUEST['n'] ) ? $_REQUEST['n'] : 0;
+					$args = array(
+						'number' => $limit,
+						'offset' => $page,
+						'fields' => 'all_with_meta',
+						'meta_query' => array (
+							array(
+								'key'     => '_it_exchange_customer_member_access',
+								'compare' => 'EXISTS',
+							)
+						)
+					);
+					$membership_data = get_users( $args );
+					
+					if ( !empty( $membership_data ) ) {
+						if ( 0 === $page ) {
+							$f = fopen( $destination . '/ithemes-exchanges-membership-data.csv', 'w' );
+						} else {
+							$f = fopen( $destination . '/ithemes-exchanges-membership-data.csv', 'a' );
+						}
+						$headings = array(
+							__( 'ID', 'LION' ),
+							__( 'Login', 'LION' ),
+							__( 'Name', 'LION' ),
+							__( 'Email', 'LION' ),
+							__( 'Membership', 'LION' ),
+						);
+						fwrite( $f, implode( ',', $headings ) . "\n" );
+						foreach( $membership_data as $member ) {
+							$user_object = get_userdata( (int) $member->ID );
+
+							$line = array();
+							$line[] = it_exchange_one_click_export_escape_csv_value( $member->ID ); //Member ID
+							$line[] = it_exchange_one_click_export_escape_csv_value( $user_object->user_login ); //User name
+							$line[] = it_exchange_one_click_export_escape_csv_value( $user_object->first_name . ' ' . $user_object->last_name );
+							$line[] = it_exchange_one_click_export_escape_csv_value( $user_object->user_email ); //email
+							
+							$customer = new IT_Exchange_Customer( $user_object->ID );
+							$member_access = $customer->get_customer_meta( 'member_access' );
+							$member_line = '';
+							if ( !empty( $member_access ) ) {
+								$flip_member_access = array();
+								foreach( $member_access as $txn_id => $product_id_array ) {
+									// we want the transaction ID to be the value to help us determine child access relations to transaction IDs
+									// Can't use array_flip because product_id_array is an array -- now :)
+										foreach ( (array) $product_id_array as $product_id ) {
+										$flip_member_access[$product_id] = $txn_id;
+									}
+								}
+								$memberships = array();
+								if ( !empty( $flip_member_access ) ) {
+									foreach( $flip_member_access as $product_id => $txn_id ) {
+										$transaction = it_exchange_get_transaction( $txn_id );
+										$title = get_the_title( $product_id );
+										$expired = false;
+										$autorenew = '';
+										
+										if ( $expires = $transaction->get_transaction_meta( 'subscription_expired_' . $product_id, true ) ) {
+											$expires = sprintf( __( 'Expired %s', 'LION' ), date_i18n( get_option( 'date_format' ), $expires ) );
+											$expired = true;
+										} else if ( $expires = $transaction->get_transaction_meta( 'subscription_expires_' . $product_id, true ) ) {
+											$expires = sprintf( __( 'Expires %s', 'LION' ), date_i18n( get_option( 'date_format' ), $expires ) );
+										} else {
+											$expires = __( 'Forever', 'LION' );
+										}
+										
+										if ( !$expired ) {										
+											if ( $transaction->get_transaction_meta( 'subscription_autorenew_' . $product_id, true ) ) {
+												$autorenew = '(auto-renewing)';
+											}
+										}
+										
+										$member_lines[] = it_exchange_one_click_export_escape_csv_value( 'Membership Product Title: ' . $title . '; Member Product ID: ' . $product_id . '; Expiration: ' . $expires . ' ' . $autorenew );
+									}									
+								}
+							}
+							$line[] = implode( '|', $member_lines );
+
+							fwrite( $f, implode( ',', $line ) . "\n"  );
+						}
+						fclose( $f );
+					}
 					
 					if ( empty( $membership_data ) || $limit > count( $membership_data ) ) {
 				            
