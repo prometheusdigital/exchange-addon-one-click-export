@@ -455,7 +455,7 @@ function it_exchange_one_click_export_addon_page() {
 	                            
 		        } else {
 				    
-				    ?><p><?php _e( 'If your browser doesn&#8217;t start loading the next page automatically, click this link:' ); ?> <a class="button" href="admin.php?page=it-exchange-one-click-export&amp;product-export&amp;n=<?php echo ($n + 5) ?>"><?php _e( 'Next Products', 'LION' ); ?></a></p>
+				    ?><p><?php _e( 'If your browser doesn&#8217;t start loading the next page automatically, click this link:' ); ?> <a class="button" href="admin.php?page=it-exchange-one-click-export&amp;product-export&amp;n=<?php echo ($page + 5) ?>"><?php _e( 'Next Products', 'LION' ); ?></a></p>
 				    <script type='text/javascript'>
 				    <!--
 				    function nextpage() {
@@ -590,7 +590,7 @@ function it_exchange_one_click_export_addon_page() {
 	                            
 		        } else {
 				    
-				    ?><p><?php _e( 'If your browser doesn&#8217;t start loading the next page automatically, click this link:' ); ?> <a class="button" href="admin.php?page=it-exchange-one-click-export&amp;transaction-export&amp;n=<?php echo ($n + 5) ?>"><?php _e( 'Next Transactions', 'LION' ); ?></a></p>
+				    ?><p><?php _e( 'If your browser doesn&#8217;t start loading the next page automatically, click this link:' ); ?> <a class="button" href="admin.php?page=it-exchange-one-click-export&amp;transaction-export&amp;n=<?php echo ($page + 5) ?>"><?php _e( 'Next Transactions', 'LION' ); ?></a></p>
 				    <script type='text/javascript'>
 				    <!--
 				    function nextpage() {
@@ -701,7 +701,7 @@ function it_exchange_one_click_export_addon_page() {
 						
 			        } else {
 					    
-					    ?><p><?php _e( 'If your browser doesn&#8217;t start loading the next page automatically, click this link:' ); ?> <a class="button" href="admin.php?page=it-exchange-one-click-export&amp;transaction-export&amp;n=<?php echo ($n + 5) ?>"><?php _e( 'Next Members', 'LION' ); ?></a></p>
+					    ?><p><?php _e( 'If your browser doesn&#8217;t start loading the next page automatically, click this link:' ); ?> <a class="button" href="admin.php?page=it-exchange-one-click-export&amp;transaction-export&amp;n=<?php echo ($page + 5) ?>"><?php _e( 'Next Members', 'LION' ); ?></a></p>
 					    <script type='text/javascript'>
 					    <!--
 					    function nextpage() {
