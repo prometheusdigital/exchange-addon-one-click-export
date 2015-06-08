@@ -403,20 +403,22 @@ function it_exchange_one_click_export_addon_page() {
 								$settings = it_exchange_get_option( 'addon_easy_eu_value_added_taxes' );
 								$vat_moss_tax_types = empty( $meta['_it-exchange-easy-eu-value-added-taxes-vat-moss-tax-types'][0] ) ? array() : maybe_unserialize( $meta['_it-exchange-easy-eu-value-added-taxes-vat-moss-tax-types'][0] );
 		
-								foreach( $settings['vat-moss-tax-rates'] as $memberstate_abbrev => $tax_rates ) {
-									foreach( $tax_rates as $tax_rate ) {
-										if ( 'checked' === $tax_rate['default'] ) {
-											$default_tax_rate = $tax_rate;
-											break;
+								if ( !empty( $settings['vat-moss-tax-rates'] ) ) {
+									foreach( $settings['vat-moss-tax-rates'] as $memberstate_abbrev => $tax_rates ) {
+										foreach( $tax_rates as $tax_rate ) {
+											if ( 'checked' === $tax_rate['default'] ) {
+												$default_tax_rate = $tax_rate;
+												break;
+											}
 										}
-									}
-									if ( empty( $vat_moss_tax_types[$memberstate_abbrev] ) ) {
-										$vat_moss_tax_types[$memberstate_abbrev] = 'default';
-									}
-									if ( 'default' === $vat_moss_tax_types[$memberstate_abbrev] ) {
-										$line[] = sprintf( __( 'Default (%s - %s%%)', 'LION' ), $default_tax_rate['label'], $default_tax_rate['rate'] );;
-									} else {
-										$line[] = sprintf( __( '%s (%s%%)', 'LION' ), $tax_rates[$vat_moss_tax_types[$memberstate_abbrev]]['label'], $tax_rates[$vat_moss_tax_types[$memberstate_abbrev]]['rate'] );
+										if ( empty( $vat_moss_tax_types[$memberstate_abbrev] ) ) {
+											$vat_moss_tax_types[$memberstate_abbrev] = 'default';
+										}
+										if ( 'default' === $vat_moss_tax_types[$memberstate_abbrev] ) {
+											$line[] = sprintf( __( 'Default (%s - %s%%)', 'LION' ), $default_tax_rate['label'], $default_tax_rate['rate'] );;
+										} else {
+											$line[] = sprintf( __( '%s (%s%%)', 'LION' ), $tax_rates[$vat_moss_tax_types[$memberstate_abbrev]]['label'], $tax_rates[$vat_moss_tax_types[$memberstate_abbrev]]['rate'] );
+										}
 									}
 								}
 							} else {
