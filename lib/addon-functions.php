@@ -52,7 +52,7 @@ function it_exchange_one_click_export_addon_page() {
 					'posts_per_page' => $limit,
 					'offset'         => $page,
 					'post_type'      => 'it_exchange_prod',
-					'post_status'    => 'all',
+					'post_status'    => 'any',
 				);
 				$products = get_posts( $args );
 				
@@ -483,7 +483,7 @@ function it_exchange_one_click_export_addon_page() {
 					'posts_per_page' => $limit,
 					'offset'         => $page,
 					'post_type'      => 'it_exchange_tran',
-					'post_status'    => 'all',
+					'post_status'    => 'any',
 				);
 				$transactions = get_posts( $args );
 				
