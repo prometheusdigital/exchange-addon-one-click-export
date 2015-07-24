@@ -6,7 +6,7 @@
  * Plugin URI: http://ithemes.com/exchange/one-click-export/
  * Author: iThemes
  * Author URI: http://ithemes.com
- * iThemes Package: exchange-addon-mailchimp
+ * iThemes Package: exchange-addon-one-click-export
  
  * Installation:
  * 1. Download and unzip the latest release zip file.
@@ -29,7 +29,7 @@ function it_exchange_register_one_click_export_addon() {
 		'description'       => __( 'Add Export Function to Exchange.', 'LION' ),
 		'author'            => 'iThemes',
 		'author_url'        => 'http://ithemes.com/exchange/one-click-export/',
-		'icon'              => ITUtility::get_url_from_file( dirname( __FILE__ ) . '/lib/images/mailchimp50px.png' ),
+		'icon'              => ITUtility::get_url_from_file( dirname( __FILE__ ) . '/lib/images/one-click-export-50px.png' ),
 		'file'              => dirname( __FILE__ ) . '/init.php',
 		'category'          => 'misc',
 		'settings-callback' => 'it_exchange_one_click_export_settings_callback',
